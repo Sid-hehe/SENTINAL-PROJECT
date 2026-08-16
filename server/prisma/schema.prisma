@@ -1,0 +1,116 @@
+// Prisma Schema for Sentinel Platform (SQLite compatible)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String     @id @default(uuid())
+  name         String
+  email        String     @unique
+  passwordHash String
+  role         String     @default("USER") // USER, ANALYST, ADMIN
+  avatar       String?
+  isActive     Boolean    @default(true)
+  lastLoginAt  DateTime?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  auditLogs AuditLog[]
+  notes     CaseNote[]
+}
+
+model ScamPattern {
+  id                  String     @id @default(uuid())
+  title               String
+  slug                String     @unique
+  description         String
+  detailedDescription String
+  fraudType           String     // IDENTITY_THEFT, ONBOARDING_FRAUD, ACCOUNT_TAKEOVER, SOCIAL_ENGINEERING, DEVICE_FRAUD, TRANSACTION_FRAUD
+  riskTier            String     // LOW, MEDIUM, HIGH, CRITICAL
+  status              String     @default("ACTIVE") // ACTIVE, HISTORICAL, UNDER_REVIEW
+  behavioralRedFlags  String     // JSON array of strings
+  firstIdentified     String
+  lastSeen            String
+  protectionTips      String     // JSON array of strings
+  exampleRiskScore    Int        @default(75)
+  createdAt           DateTime   @default(now())
+  updatedAt           DateTime   @updatedAt
+}
+
+model SuspiciousReport {
+  id               String       @id @default(uuid())
+  reporterName     String
+  reporterEmail    String
+  fraudType        String       // IDENTITY_THEFT, etc.
+  description      String
+  suspectedPattern String?
+  evidence         String?
+  status           String       @default("NEW") // NEW, UNDER_REVIEW, CONFIRMED, DISMISSED
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+}
+
+model Session {
+  id                  String        @id @default(uuid())
+  sessionId           String        @unique // e.g. #48291
+  customerReference   String        // e.g. CUS•••719
+  riskScore           Int           @default(0) // 0 - 100
+  riskTier            String        @default("LOW") // LOW, MEDIUM, HIGH, CRITICAL
+  identityStatus      String        @default("VERIFIED") // VERIFIED, UNVERIFIED, SUSPICIOUS
+  behavioralStatus    String        @default("NORMAL") // NORMAL, ANOMALOUS, HIGH_RISK
+  transactionStatus   String        @default("NORMAL") // NORMAL, ELEVATED, ANOMALOUS
+  topSignal           String        // e.g. Device Switching
+  recommendation      String        // e.g. Route to manual review before final approval
+  status              String        @default("NEW") // NEW, IN_REVIEW, CONFIRMED_FRAUD, CONFIRMED_LEGITIMATE, NEEDS_MORE_INFO
+  reviewedBy          String?
+  reviewedAt          DateTime?
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  signals BehavioralSignal[]
+  notes   CaseNote[]
+}
+
+model BehavioralSignal {
+  id                String     @id @default(uuid())
+  sessionId         String
+  signalType        String     // DEVICE_SWITCH, FAST_COMPLETION, etc.
+  description       String
+  scoreContribution Int        // e.g. +24
+  severity          String     @default("MEDIUM") // LOW, MEDIUM, HIGH, CRITICAL
+  metadata          String?    // JSON object with context
+  createdAt         DateTime   @default(now())
+
+  session Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+}
+
+model CaseNote {
+  id        String   @id @default(uuid())
+  sessionId String
+  authorId  String
+  content   String
+  createdAt DateTime @default(now())
+
+  session Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  author  User    @relation(fields: [authorId], references: [id], onDelete: Cascade)
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  userId     String?
+  userName   String?
+  userRole   String?
+  action     String
+  entityType String
+  entityId   String?
+  metadata   String?  // JSON string
+  createdAt  DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+}

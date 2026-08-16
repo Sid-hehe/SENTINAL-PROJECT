@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    background-color: #080A0D;
+    color: #F5F7FA;
+    font-family: 'Inter', sans-serif;
+  }
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0B0D10;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1E2631;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #E11D2A;
+}
+
+/* Technical Cyber Grid Texture */
+.bg-cyber-grid {
+  background-size: 32px 32px;
+  background-image: 
+    linear-gradient(to right, rgba(30, 38, 49, 0.25) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(30, 38, 49, 0.25) 1px, transparent 1px);
+}
+
+.bg-cyber-dots {
+  background-image: radial-gradient(rgba(225, 29, 42, 0.15) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Glass & Cyber Borders */
+.cyber-card {
+  background: rgba(17, 20, 24, 0.85);
+  border: 1px solid #1E2631;
+  backdrop-filter: blur(8px);
+}
+
+.cyber-card:hover {
+  border-color: rgba(225, 29, 42, 0.4);
+  box-shadow: 0 0 15px rgba(225, 29, 42, 0.1);
+}
+
+/* Scanline Effect */
+.scanline-overlay {
+  position: relative;
+  overflow: hidden;
+}
+
+.scanline-overlay::after {
+  content: " ";
+  display: block;
+  position: absolute;
+  top: 0; left: 0; bottom: 0; right: 0;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+  z-index: 10;
+  background-size: 100% 3px, 6px 100%;
+  pointer-events: none;
+  opacity: 0.6;
+}
