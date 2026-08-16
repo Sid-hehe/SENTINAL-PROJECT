@@ -69,7 +69,7 @@ export async function register(req: AuthRequest, res: Response) {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       maxAge: 7 * 24 * 60 * 60 * 1000,
-      sameSite: 'lax',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
     });
 
     await createAuditLog({
@@ -136,7 +136,7 @@ export async function login(req: AuthRequest, res: Response) {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       maxAge: 7 * 24 * 60 * 60 * 1000,
-      sameSite: 'lax',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
     });
 
     await createAuditLog({
@@ -163,7 +163,11 @@ export async function login(req: AuthRequest, res: Response) {
 }
 
 export async function logout(req: AuthRequest, res: Response) {
-  res.clearCookie('token');
+  res.clearCookie('token', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+  });
   return res.json({
     success: true,
     data: { message: 'Logged out successfully' },
