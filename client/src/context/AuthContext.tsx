@@ -64,6 +64,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const res = await authApi.login({ email, password });
       if (res.success && res.data?.user) {
         setUser(res.data.user);
+        if (res.data.token) {
+          localStorage.setItem('sentinel_jwt_token', res.data.token);
+        }
         localStorage.setItem(LOCAL_STORAGE_ROLE_KEY, res.data.user.role);
         toast.success(`Welcome, ${res.data.user.name}`, `Authenticated as ${res.data.user.role}`);
         return true;
@@ -82,6 +85,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const res = await authApi.register({ name, email, password, role });
       if (res.success && res.data?.user) {
         setUser(res.data.user);
+        if (res.data.token) {
+          localStorage.setItem('sentinel_jwt_token', res.data.token);
+        }
         localStorage.setItem(LOCAL_STORAGE_ROLE_KEY, res.data.user.role);
         toast.success('Account Created', `Registered successfully as ${res.data.user.role}`);
         return true;
@@ -97,6 +103,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = async (): Promise<void> => {
     await authApi.logout();
     setUser(null);
+    localStorage.removeItem('sentinel_jwt_token');
     localStorage.removeItem(LOCAL_STORAGE_ROLE_KEY);
     toast.info('Logged Out', 'Your session has ended.');
   };
