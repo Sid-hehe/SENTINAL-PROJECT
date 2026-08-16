@@ -17,7 +17,7 @@ if (!jwtSecret) {
   }
 }
 
-export const JWT_SECRET = jwtSecret;
+export const JWT_SECRET = (jwtSecret || '').trim();
 export const PORT = process.env.PORT || 5000;
-export const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173';
+export const CLIENT_URL = (process.env.CLIENT_URL || 'http://localhost:5173').trim().replace(/['"]/g, '');
 export const IS_PRODUCTION = isProduction;

@@ -23,7 +23,13 @@ export async function apiFetch<T>(
 
   try {
     const response = await fetch(`${API_BASE}${endpoint}`, config);
-    const data = await response.json();
+    const text = await response.text();
+    let data: any = {};
+    try {
+      data = text ? JSON.parse(text) : {};
+    } catch {
+      data = { error: { code: 'PARSE_ERROR', message: text || `HTTP ${response.status}` } };
+    }
 
     if (!response.ok) {
       return {
